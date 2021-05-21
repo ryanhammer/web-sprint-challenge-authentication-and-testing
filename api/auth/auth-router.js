@@ -20,7 +20,7 @@ router.post(
   
     user.password = hashedPassword;
   
-    Users.add(user)
+    Users.addUser(user)
       .then(savedUser => {
         res.status(201).json(savedUser);
       })

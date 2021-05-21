@@ -22,7 +22,7 @@ const checkForRequiredCredentials = (req, res, next) => {
 const validateUsername = (req, res, next) => {
 
   Users.findUser(req.body.username)
-    .then(([user]) => {
+    .then((user) => {
       if (!user) {
         next();
       } else {
