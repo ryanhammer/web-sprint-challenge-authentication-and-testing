@@ -38,7 +38,7 @@ router.post(
     const token = req.token;
     res.status(200).json({
       message: `welcome ${req.username}`,
-      token: token
+      token
     });
 
 });
