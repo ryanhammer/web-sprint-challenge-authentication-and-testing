@@ -39,8 +39,8 @@ const validateUsername = (req, res, next) => {
 const validateLogin = (req, res, next) => {
   let { username, password } = req.body;
 
-  Users.findBy(username)
-    .then(([user]) => {
+  Users.findUser(username)
+    .then((user) => {
       if (user && bcrypt.compareSync(password, user.password)) {
         req.user = user;
         next();
@@ -51,7 +51,7 @@ const validateLogin = (req, res, next) => {
     .catch(next);
 }
 
-const tokenBuilder = (req, res) => {
+const tokenBuilder = (req, res, next) => {
   const user = req.user;
   if (!user) {
     res.status(500).json({ message: 'something went wrong at login'});
@@ -71,6 +71,7 @@ const tokenBuilder = (req, res) => {
       options
       );
     req.token = result;
+    next();
   }
 }
 
