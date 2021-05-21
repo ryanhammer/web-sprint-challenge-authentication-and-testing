@@ -1,12 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { JWT_SECRET } = require('../auth/secrets');
-const db = require('../../data/dbConfig');
+const Users = require('../users/users-model');
 
-const findUser = (filter) => {
-  return db('users')
-    .where(filter);
-}
 
 const checkForRequiredCredentials = (req, res, next) => {
   const { username, password } = req.body;
@@ -25,7 +21,7 @@ const checkForRequiredCredentials = (req, res, next) => {
 
 const validateUsername = (req, res, next) => {
 
-  findUser(req.body.username)
+  Users.findUser(req.body.username)
     .then(([user]) => {
       if (!user) {
         next();
@@ -40,4 +36,47 @@ const validateUsername = (req, res, next) => {
     })
 };
 
-module.exports = { checkForRequiredCredentials, validateUsername };
+const validateLogin = (req, res, next) => {
+  let { username, password } = req.body;
+
+  Users.findBy(username)
+    .then(([user]) => {
+      if (user && bcrypt.compareSync(password, user.password)) {
+        req.user = user;
+        next();
+      } else {
+        res.status(401).json({ message: 'invalid credentials' });
+      }
+    })
+    .catch(next);
+}
+
+const tokenBuilder = (req, res) => {
+  const user = req.user;
+  if (!user) {
+    res.status(500).json({ message: 'something went wrong at login'});
+  } else {
+
+    const payload = {
+      sub: user.id,
+      username: user.username,
+    };
+    const options = {
+      expiresIn: '2h',
+      
+    };
+    const result = jwt.sign(
+      payload,
+      JWT_SECRET,
+      options
+      );
+    req.token = result;
+  }
+}
+
+module.exports = {
+  checkForRequiredCredentials,
+  validateUsername,
+  validateLogin,
+  tokenBuilder
+};
