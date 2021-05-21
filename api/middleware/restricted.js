@@ -2,7 +2,6 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../auth/secrets');
 
 module.exports = (req, res, next) => {
-  console.log('hello from restricted');
   const token = req.headers.authorization;
   if (token) {
     jwt.verify(token, JWT_SECRET, (err, decoded) => {
@@ -14,7 +13,6 @@ module.exports = (req, res, next) => {
       }
     })
   } else {
-    console.log('hello from sad path');
     res.status(401).json({ message: 'token required' });
   }
 };
