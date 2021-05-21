@@ -6,7 +6,12 @@ const Users = require('../users/users-model');
 
 const checkForRequiredCredentials = (req, res, next) => {
   const { username, password } = req.body;
-  const valid = Boolean(username.trim() && password.trim());
+  const valid = Boolean(
+    req.body.username &&
+    req.body.password &&
+    username.trim() &&
+    password.trim()
+  );
 
   if (valid) {
     req.body.username = username.trim();
